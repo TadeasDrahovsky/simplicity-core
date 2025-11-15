@@ -5,6 +5,7 @@ import { CreateAnnouncementDto } from '../dto/create-announcement.dto';
 import { FindAllAnnouncementsQueryDto } from '../dto/find-all-announcements-query.dto';
 import { UpdateAnnouncementDto } from '../dto/update-announcement.dto';
 import { AnnouncementResponseDto } from '../dto/announcement-response.dto';
+import { AnnouncementsGateway } from '../gateways/announcements.gateway';
 
 @Injectable()
 export class AnnouncementsService {
@@ -17,7 +18,10 @@ export class AnnouncementsService {
     updatedAt: true,
   };
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly announcementsGateway: AnnouncementsGateway,
+  ) {}
 
   async create(
     createAnnouncementDto: CreateAnnouncementDto,
@@ -27,7 +31,11 @@ export class AnnouncementsService {
       select: this.selectFields,
     });
 
-    return announcement as AnnouncementResponseDto;
+    const announcementDto = announcement as AnnouncementResponseDto;
+
+    this.announcementsGateway.emitAnnouncementCreated(announcementDto);
+
+    return announcementDto;
   }
 
   async findAll(

@@ -57,6 +57,49 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## WebSocket Notifications
+
+The application includes WebSocket support for real-time announcement notifications. When a new announcement is created, all connected clients receive a notification.
+
+### Listen to WebSocket Events
+
+To listen for announcement notifications in the terminal:
+
+```bash
+npm run listen:announcements
+```
+
+This will connect to the WebSocket server and display new announcements in real-time as they are created.
+
+**WebSocket Connection Details:**
+
+- **URL:** `http://localhost:3000/announcements`
+- **Event:** `announcement:created`
+- **Payload:** Full announcement object (id, title, body, category, createdAt, updatedAt)
+
+**Example Output:**
+
+```
+🔌 Connecting to WebSocket server...
+📍 Server: http://localhost:3000/announcements
+⏳ Waiting for announcements...
+
+✅ Connected to WebSocket server
+👂 Listening for announcement:created events...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📢 NEW ANNOUNCEMENT RECEIVED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ID:       123e4567-e89b-12d3-a456-426614174000
+Title:    New Feature: Enhanced Search
+Category: NEW_FEATURES
+Body:     We are excited to announce...
+Created:  11/15/2024, 8:30:00 PM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Press `Ctrl+C` to stop listening.
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
