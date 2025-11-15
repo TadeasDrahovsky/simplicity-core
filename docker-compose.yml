@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: simplicity-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: simplicity
+      POSTGRES_PASSWORD: simplicity
+      POSTGRES_DB: simplicity_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - simplicity-network
+
+  core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: simplicity-core
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: 'postgresql://simplicity:simplicity@db:5432/simplicity_db'
+      NODE_ENV: development
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - db
+    networks:
+      - simplicity-network
+    command: npm run start:dev
+
+volumes:
+  postgres_data:
+
+networks:
+  simplicity-network:
+    driver: bridge

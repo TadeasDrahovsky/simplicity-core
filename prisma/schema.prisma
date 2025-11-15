@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AnnouncementCategory {
+  NEW_FEATURES
+  TIPS
+  MONTHLY_DIGEST
+  SECURITY_UPDATES
+  PROMOTIONS
+  OTHER
+
+  @@map("announcement_category")
+}
+
+model Announcement {
+  id       String              @id @default(uuid())
+  
+  title    String              @db.Text
+  body     String              @db.Text
+  category AnnouncementCategory
+
+  searchVector String[]
+
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([category, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([searchVector], type: Gin)
+
+  @@map("announcements")
+}
