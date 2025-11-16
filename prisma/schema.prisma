@@ -26,14 +26,15 @@ model Announcement {
   body     String              @db.Text
   category AnnouncementCategory
 
-  searchVector String[]
-
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
 
+  // Full-text search vector (generated column)
+  search_vector Unsupported("tsvector")?
+
   @@index([category, createdAt(sort: Desc)])
   @@index([createdAt(sort: Desc)])
-  @@index([searchVector], type: Gin)
+  @@index([search_vector], name: "idx_search_vector", type: Gin)
 
   @@map("announcements")
 }

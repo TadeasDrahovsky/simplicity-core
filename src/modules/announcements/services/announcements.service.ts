@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { AnnouncementCategory, Prisma } from '@prisma/client';
 import { PrismaService } from '../../db/services/prisma.service';
 import { CreateAnnouncementDto } from '../dto/create-announcement.dto';
 import { FindAllAnnouncementsQueryDto } from '../dto/find-all-announcements-query.dto';
@@ -41,14 +41,17 @@ export class AnnouncementsService {
   async findAll(
     query: FindAllAnnouncementsQueryDto,
   ): Promise<AnnouncementResponseDto[]> {
-    const where: Prisma.AnnouncementWhereInput = {};
+    const { search, category, skip, take } = query;
 
-    if (query.category) {
-      where.category = query.category;
+    if (search) {
+      return this.searchAnnouncements(search, category, skip, take);
     }
 
-    const skip = query.skip;
-    const take = query.take;
+    const where: Prisma.AnnouncementWhereInput = {};
+
+    if (category) {
+      where.category = category;
+    }
 
     const announcements = await this.prisma.announcement.findMany({
       where,
@@ -100,5 +103,59 @@ export class AnnouncementsService {
     });
 
     return announcement as AnnouncementResponseDto;
+  }
+
+  private async searchAnnouncements(
+    search: string,
+    category?: AnnouncementCategory,
+    skip?: number,
+    take?: number,
+  ): Promise<AnnouncementResponseDto[]> {
+    const searchTerms = search
+      .split(/\s+/)
+      .map((term) => term.trim())
+      .filter((term) => term.length > 0)
+      .map((term) => term.replace(/[&|!():'";\\]/g, ''))
+      .join(' & ');
+
+    if (!searchTerms) {
+      return [];
+    }
+
+    const categoryFilter = category
+      ? Prisma.sql`AND category = ${category}::announcement_category`
+      : Prisma.empty;
+
+    const skipClause =
+      skip !== undefined ? Prisma.sql`OFFSET ${skip}` : Prisma.empty;
+    const limitClause =
+      take !== undefined ? Prisma.sql`LIMIT ${take}` : Prisma.empty;
+
+    const announcements = await this.prisma.$queryRaw<
+      Array<{
+        id: string;
+        title: string;
+        body: string;
+        category: string;
+        createdAt: Date;
+        updatedAt: Date;
+      }>
+    >`
+        SELECT 
+          id,
+          title,
+          body,
+          category,
+          "createdAt",
+          "updatedAt"
+        FROM announcements
+        WHERE search_vector @@ to_tsquery('english', ${searchTerms})
+        ${categoryFilter}
+        ORDER BY "createdAt" DESC
+        ${limitClause}
+        ${skipClause}
+      `;
+
+    return announcements as AnnouncementResponseDto[];
   }
 }

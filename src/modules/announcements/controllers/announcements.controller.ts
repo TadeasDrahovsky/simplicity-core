@@ -34,23 +34,6 @@ export class AnnouncementsController {
     description: 'List of announcements',
     type: [AnnouncementResponseDto],
   })
-  @ApiQuery({
-    name: 'category',
-    required: false,
-    enum: AnnouncementCategory,
-  })
-  @ApiQuery({
-    name: 'skip',
-    required: false,
-    type: String,
-    description: 'Pagination offset',
-  })
-  @ApiQuery({
-    name: 'take',
-    required: false,
-    type: String,
-    description: 'Pagination limit',
-  })
   findAllAnnouncements(@Query() query: FindAllAnnouncementsQueryDto) {
     return this.announcementsService.findAll(query);
   }
