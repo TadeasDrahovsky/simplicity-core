@@ -1,85 +1,85 @@
 # Simplicity Core
 
-A NestJS-based REST API for managing announcements with real-time WebSocket notifications and full-text search capabilities.
+REST API vytvorené v NestJS pre správu oznamov (announcements) s real-time WebSocket notifikáciami a možnosťou full-text vyhľadávania.
 
-## Features
+## Funkcie
 
-- ✅ RESTful API for announcements CRUD operations
-- ✅ Full-text search with English language support
-- ✅ Real-time WebSocket notifications
-- ✅ Input validation
-- ✅ Swagger/OpenAPI documentation
-- ✅ PostgreSQL database with Prisma ORM
-- ✅ Docker support for local development
+- ✅ RESTful API pre CRUD operácie
+- ✅ Full-text vyhľadávanie s podporou anglického jazyka
+- ✅ Real-time WebSocket notifikácie
+- ✅ Validácia vstupov
+- ✅ Swagger/OpenAPI dokumentácia
+- ✅ PostgreSQL databáza s Prisma ORM
+- ✅ Docker pre lokálny vývoj
 
-## Prerequisites
+## Požiadavky
 
-- Node.js 20+ and npm
-- Docker and Docker Compose (for containerized setup)
-- PostgreSQL 17+ (if running database locally)
+- Node.js 20+ a npm
+- Docker a Docker Compose (pre kontajnerizované prostredie)
+- PostgreSQL 17+ (ak spúšťate databázu lokálne)
 
-## Local Setup
+## Lokálne nastavenie
 
-1. **Start the services:**
+1. **Spustite služby:**
 
    ```bash
    docker-compose up -d
    ```
 
-2. **Run database migrations:**
+2. **Spustite databázové migrácie:**
 
    ```bash
    docker exec -it simplicity-core npx prisma migrate deploy
    ```
 
-3. **Access the application:**
+3. **Prístup k aplikácii:**
    - API: http://localhost:3000
    - Swagger UI: http://localhost:3000/api
-   - Database: localhost:5432
+   - Databáza: localhost:5432
 
-**Note:** You need to run database migrations manually after starting the containers. The database will be ready after a few seconds.
+**Poznámka:** Po spustení kontajnerov musíte manuálne spustiť databázové migrácie. Databáza bude pripravená po niekoľkých sekundách.
 
-## API Endpoints
+## API Endpointy
 
-### Base URL
+### Základná URL
 
 ```
 http://localhost:3000
 ```
 
-### Announcements
+### Oznamy
 
-#### Get All Announcements
+#### Získať všetky oznamy
 
 ```http
 GET /announcements
 ```
 
-**Query Parameters:**
+**Query parametre:**
 
-- `category` (optional): Filter by category
-  - Values: `NEW_FEATURES`, `TIPS`, `MONTHLY_DIGEST`, `SECURITY_UPDATES`, `PROMOTIONS`, `OTHER`
-- `search` (optional): Full-text search query (searches in title and body)
-- `skip` (optional): Pagination offset (number, default: 0)
-- `take` (optional): Pagination limit (number, min: 1, max: 100, default: 10)
+- `category` (voliteľné): Filtrovanie podľa kategórie
+  - Hodnoty: `NEW_FEATURES`, `TIPS`, `MONTHLY_DIGEST`, `SECURITY_UPDATES`, `PROMOTIONS`, `OTHER`
+- `search` (voliteľné): Full-text vyhľadávací dotaz (vyhľadáva v title a body)
+- `skip` (voliteľné): Offset pre stránkovanie (číslo, predvolené: 0)
+- `take` (voliteľné): Limit pre stránkovanie (číslo, min: 1, max: 100, predvolené: 10)
 
-**Example:**
+**Príklad:**
 
 ```bash
-# Get all announcements
+# Získať všetky oznámenia
 curl http://localhost:3000/announcements
 
-# Filter by category
+# Filtrovať podľa kategórie
 curl http://localhost:3000/announcements?category=NEW_FEATURES
 
-# Search announcements
+# Vyhľadať oznámenia
 curl http://localhost:3000/announcements?search=important
 
-# Combined filters with pagination
+# Kombinované filtre so stránkovaním
 curl "http://localhost:3000/announcements?category=NEW_FEATURES&search=search&skip=0&take=10"
 ```
 
-**Response:** `200 OK`
+**Odpoveď:** `200 OK`
 
 ```json
 [
@@ -94,19 +94,19 @@ curl "http://localhost:3000/announcements?category=NEW_FEATURES&search=search&sk
 ]
 ```
 
-#### Get Announcement by ID
+#### Získať oznamy podľa ID
 
 ```http
 GET /announcements/:id
 ```
 
-**Example:**
+**Príklad:**
 
 ```bash
 curl http://localhost:3000/announcements/123e4567-e89b-12d3-a456-426614174000
 ```
 
-**Response:** `200 OK`
+**Odpoveď:** `200 OK`
 
 ```json
 {
@@ -119,7 +119,7 @@ curl http://localhost:3000/announcements/123e4567-e89b-12d3-a456-426614174000
 }
 ```
 
-**Error Response:** `404 Not Found`
+**Chybová odpoveď:** `404 Not Found`
 
 ```json
 {
@@ -128,13 +128,13 @@ curl http://localhost:3000/announcements/123e4567-e89b-12d3-a456-426614174000
 }
 ```
 
-#### Create Announcement
+#### Vytvoriť oznam
 
 ```http
 POST /announcements
 ```
 
-**Request Body:**
+**Telo požiadavky:**
 
 ```json
 {
@@ -144,13 +144,13 @@ POST /announcements
 }
 ```
 
-**Validation Rules:**
+**Validácia:**
 
-- `title`: Required, string, max 500 characters
-- `body`: Required, string
-- `category`: Required, must be a valid enum value
+- `title`: Povinné, reťazec, max 500 znakov
+- `body`: Povinné, reťazec
+- `category`: Povinné, musí byť platná enum hodnota
 
-**Example:**
+**Príklad:**
 
 ```bash
 curl -X POST http://localhost:3000/announcements \
@@ -162,7 +162,7 @@ curl -X POST http://localhost:3000/announcements \
   }'
 ```
 
-**Response:** `201 Created`
+**Odpoveď:** `201 Created`
 
 ```json
 {
@@ -175,15 +175,15 @@ curl -X POST http://localhost:3000/announcements \
 }
 ```
 
-**Note:** Creating an announcement triggers a WebSocket notification to all connected clients.
+**Poznámka:** Vytvorenie oznamu spustí WebSocket notifikáciu pre všetkých pripojených klientov.
 
-#### Update Announcement
+#### Aktualizovať oznam
 
 ```http
 PATCH /announcements/:id
 ```
 
-**Request Body:** (all fields optional)
+**Body požiadavky:** (všetky polia voliteľné)
 
 ```json
 {
@@ -193,7 +193,7 @@ PATCH /announcements/:id
 }
 ```
 
-**Example:**
+**Príklad:**
 
 ```bash
 curl -X PATCH http://localhost:3000/announcements/123e4567-e89b-12d3-a456-426614174000 \
@@ -203,58 +203,58 @@ curl -X PATCH http://localhost:3000/announcements/123e4567-e89b-12d3-a456-426614
   }'
 ```
 
-**Response:** `200 OK` (same structure as GET)
+**Odpoveď:** `200 OK` (rovnaká štruktúra ako GET)
 
-**Error Response:** `404 Not Found` (if announcement doesn't exist)
+**Chybová odpoveď:** `404 Not Found` (ak oznam neexistuje)
 
-#### Delete Announcement
+#### Zmazať oznam
 
 ```http
 DELETE /announcements/:id
 ```
 
-**Example:**
+**Príklad:**
 
 ```bash
 curl -X DELETE http://localhost:3000/announcements/123e4567-e89b-12d3-a456-426614174000
 ```
 
-**Response:** `200 OK`
+**Odpoveď:** `200 OK`
 
 ```json
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
-  "title": "New Feature: Enhanced Search",
-  "body": "We are excited to announce...",
+  "title": "Nová funkcia: Rozšírené vyhľadávanie",
+  "body": "S radosťou oznamujeme...",
   "category": "NEW_FEATURES",
   "createdAt": "2025-11-15T20:30:00.000Z",
   "updatedAt": "2025-11-15T20:30:00.000Z"
 }
 ```
 
-**Error Response:** `404 Not Found` (if announcement doesn't exist)
+**Chybová odpoveď:** `404 Not Found` (ak oznam neexistuje)
 
-## WebSocket Notifications
+## WebSocket Notifikácie
 
-The application includes WebSocket support for real-time announcement notifications. When a new announcement is created, all connected clients receive a notification.
+Aplikácia obsahuje podporu WebSocket pre real-time notifikácie o oznamoch. Po vytvorení oznamu, všetci pripojení klienti dostanú notifikáciu.
 
-### Listen to WebSocket Events
+### Počúvanie na WebSocket
 
-To listen for announcement notifications in the terminal:
+Pre počúvanie notifikácií v termináli zadajte príkaz:
 
 ```bash
 npm run listen:announcements
 ```
 
-This will connect to the WebSocket server and display new announcements in real-time as they are created.
+Príkazom sa pripojíte k WebSocket serveru a zobrazia sa real-time oznamy po vytvorení ako:
 
-**WebSocket Connection Details:**
+**Detaily WebSocket pripojenia:**
 
 - **URL:** `http://localhost:3000/announcements`
-- **Event:** `announcement:created`
-- **Payload:** Full announcement object (id, title, body, category, createdAt, updatedAt)
+- **Udalosť:** `announcement:created`
+- **Payload:** Objekt oznamu (id, title, body, category, createdAt, updatedAt)
 
-**Example Output:**
+**Príklad výstupu:**
 
 ```
 🔌 Connecting to WebSocket server...
@@ -275,8 +275,8 @@ Created:  11/15/2025, 8:30:00 PM
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-Press `Ctrl+C` to stop listening.
+Stlačte `Ctrl+C` pre zastavenie Websocketu.
 
-## License
+## Licencia
 
 UNLICENSED

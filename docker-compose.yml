@@ -32,7 +32,6 @@ services:
       - db
     networks:
       - simplicity-network
-    command: npm run start:dev
 
 volumes:
   postgres_data:
